@@ -1,10 +1,12 @@
-const crypto = require('crypto');
+const moment = require('moment');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/UserModel');
+const ReferralLink = require('../Models/ReferralLinkModel');
+const Referral = require('../Models/ReferralModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { sanityCheck, filterUpdateObject } = require('../utils/utils');
+const { sanityCheck, filterUpdateObject, getMsDate } = require('../utils/utils');
 
 const {
   ACCESS_JWT_EXPIRE,
@@ -30,9 +32,7 @@ const createSendToken = async (
   const accessToken  = createToken(user._id);
   
   const cookieOptions = {
-    expires: new Date(
-      Date.now() + JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-      ),
+    expires: new Date(parseInt(moment().format('x'), 10) + JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
     secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
     httpOnly: true,
   };
@@ -65,11 +65,36 @@ exports.signUp = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    changedAt: req.body.changedAt || Date.now(),
-    role: req.body.role,
+    isOAuth: req.body.isOAuth || false,
+    isWalletLinked: req.body.isWalletLinked || false,
+    role: 'user',
+    changedAt: req.body.changedAt || getMsDate(),
+    createdAt: getMsDate(),
   });
 
-  // const url = `${req.protocol}://${req.get('host')}/me`;
+  const {
+    referral
+  } = req.body;
+
+  const query = ReferralLink.where({ 
+    referralLink: referral,
+    expiresAt: {
+      $gt: getMsDate()
+    },
+    active: true
+  });
+  const referralData = await query.findOne();
+
+  if( referralData !== null && typeof referralData === 'object' ) {
+    await Referral.create({
+      referralLinkId: referralData._id,
+      referralId: user._id,
+      referreeId: referralData.belongsTo,
+      score: referralData.scoreAwarded,
+      createdAt: getMsDate(),
+      changedAt: getMsDate(),
+    });
+  }
 
   await createSendToken(user, 201, req, res);
 });
@@ -136,70 +161,6 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-exports.forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
-
-  if (!user) {
-    return next(
-      new AppError(
-        'User does not exist! Please provide a valid email address',
-        404
-      )
-    );
-  }
-
-  const token = user.getPasswordResetToken();
-  user.save({ validateBeforeSave: false });
-
-  const resetURL = `${req.protocol}://${req.get(
-    'host'
-  )}//api/v1/users/resetpassword/${token}`;
-
-  try {
-    res.status(200).json({
-      status: 'success',
-      message: 'token sent to the mail',
-    });
-  } catch (err) {
-    user.resetToken = undefined;
-    user.tokenExiry = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    return next(
-      new AppError('could not send mial.Please try again later!!', 500)
-    );
-  }
-});
-
-exports.resetPassword = catchAsync(async (req, res, next) => {
-  const resetToken = crypto
-    .createHash('sha256')
-    .update(req.params.token)
-    .digest('hex');
-
-  const user = await User.findOne({
-    resetToken,
-    tokenExpiry: { $gt: new Date().toISOString() },
-  });
-
-  if (!user) {
-    return next(
-      new AppError(
-        'Invalid token or token has expired.Please repeat forgot Password steps again',
-        400
-      )
-    );
-  }
-
-  user.password = req.body.password;
-  user.confirmPassword = req.body.confirmPassword;
-  user.resetToken = undefined;
-  user.tokenExpiry = undefined;
-
-  await user.save();
-  await createSendToken(user, 201, req, res);
-});
-
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id).select('+password');
 
@@ -234,7 +195,6 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   }
 
   const updateUser = filterUpdateObject(req.body, 'name', 'email');
-  if (req.file) updateUser.photo = req.file.filename;
 
   const user = await User.findByIdAndUpdate(req.user._id, updateUser, {
     new: true,
@@ -292,12 +252,12 @@ exports.isLoggedIn = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
     httpOnly: true,
   });
 
   res.cookie('refreshjwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+    expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
     httpOnly: true,
   });
 

@@ -3,8 +3,6 @@ const {
   signUp,
   logIn,
   logout,
-  resetPassword,
-  forgotPassword,
   updatePassword,
   protect,
   updateUser,
@@ -13,32 +11,35 @@ const {
   refreshToken
 } = require('../controllers/authController');
 const userController = require('../controllers/userController');
+const { buildQueryData } = require('../utils/utils');
 
-const Router = express.Router();
+const Router = express.Router({ mergeParams: true });
+
+Router.use((req, res, next) => {
+  req.type = 'user';
+  next();
+});
 
 Router.post('/signup', signUp);
 Router.post('/login', logIn);
 Router.get('/logout', logout);
-Router.post('/forgotpassword', forgotPassword);
-Router.patch('/resetpassword/:token', resetPassword);
 Router.post('/refresh-token', refreshToken);
 
 Router.use(protect);
 
-Router.get('/me', userController.getMe, userController.getUser);
+Router.get('/me', userController.getMe, buildQueryData, userController.getUser);
 
-Router.patch('/updatepassword', updatePassword);
-Router.patch('/updateme', updateUser);
-Router.delete('/deleteme', deleteMe);
-
-Router.use(restrictTo('admin'));
+Router.patch('/updatepassword', buildQueryData, updatePassword);
+Router.patch('/updateme', buildQueryData, updateUser);
+Router.delete('/deleteme', buildQueryData, deleteMe);
 
 Router.route('/')
-  .get(userController.getAllUsers)
-  .post(userController.createUser);
+  .get(buildQueryData, userController.getAllUsers)
+  .post(buildQueryData, userController.createUser);
+
 Router.route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+  .get(buildQueryData, userController.getUser)
+  .patch(buildQueryData, userController.updateUser)
+  .delete(buildQueryData, userController.deleteUser);
 
 module.exports = Router;

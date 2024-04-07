@@ -8,9 +8,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-// connecting to database
 let DB = process.env.MONGO_LOCAL;
-
 if( !process.env.MONGO_LOCAL ) {
   DB = process.env.DATABASE.replace(
     '<PASSWORD>',
@@ -26,15 +24,13 @@ if( !DB ) {
   process.exit(1);
 }
 
-mongoose
-  // .connect(process.env.DATABASE_LOCAL
-  .connect(DB, {
-    // useNewUrlParser: true,
-    // useCreateIndex: true,
-    // useFindAndModify: false,
-    // useUnifiedTopology: true,
-  })
-  .then(() => console.log('DB connection successful!'));
+mongoose.connect(DB, {
+  // useNewUrlParser: true,
+  // useCreateIndex: true,
+  // useFindAndModify: false,
+  // useUnifiedTopology: true,
+})
+.then(() => console.log('DB connection successful!'));
 
 const app = require('./app');
 const port = process.env.PORT || 3000;
