@@ -10,6 +10,13 @@ const referralRouter = require('./routes/referralRoutes');
 
 const app = express();
 
+app.use(compression());
+
+if( process.env.ENFORCE_HTTPS === true ) {
+  app.use(cors());
+  app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
+
 app.use(cookieParser());
 
 app.use(
@@ -24,8 +31,14 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/referrals', referralRouter);
 
-app.all('*', (req, res, next) => {
+app.all('/api/v1/*', (req, res, next) => {
   next(new AppError(`cannot find ${req.originalUrl} on this server!!`, 404));
+});
+
+app.use(express.static(`${__dirname}/client/build`));
+
+app.get("*", (req, res) => {
+  res.sendFile(`${__dirname}/client/build/index.html`)
 });
 
 app.use(appErrorHandler);
