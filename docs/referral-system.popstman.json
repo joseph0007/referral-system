@@ -1,0 +1,487 @@
+{
+	"info": {
+		"_postman_id": "a872199b-bd10-44d4-b7ad-3c2a35b3e8e7",
+		"name": "Referral Sytem",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12548113"
+	},
+	"item": [
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"JWT\", pm.response.json().token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"josephjoy02@gmail.com\",\r\n    \"password\": \"josephjoy009\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users/login",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"JWT\", pm.response.json().token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"josephjoy\",\r\n    \"email\": \"josephjoy211@gmail.com\",\r\n    \"password\": \"1234josephjoy\",\r\n    \"confirmPassword\": \"1234josephjoy\",\r\n    \"isOAuth\": false,\r\n    \"referral\": \"1qlp3riY\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users/signup",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJhZmNhZDhlMmZmYzhhMDc4NzIwZiIsImlhdCI6MTcxMjUwMDY4NywiZXhwIjoxNzEyNTAxNTg3fQ.Ni3zvW04rTzGRyyjowp5c7QIa3lQS_a9UuhKHm-_ahk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/users/logout",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get me",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJiMzViZjYzNDljOTAxZDg2N2M2MSIsImlhdCI6MTcxMjUwMjgwMCwiZXhwIjoxNzEyNTAzNzAwfQ.NXv2a5BTmHD-z7-yzQXkSJh2FHyx8mtLyoH1_C8-Z84",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/users/me",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh-token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users/refresh-token",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"refresh-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"JWT\", pm.response.json().token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJiMzViZjYzNDljOTAxZDg2N2M2MSIsImlhdCI6MTcxMjUwMzUzMiwiZXhwIjoxNzEyNTA0NDMyfQ.GcDWpkmJg3DUpzCRGPW0X53ZIVe5mtq9N1pgTokFBJA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"josephjoy02@gmail.com\",\r\n    \"password\": \"1234josephjoy\",\r\n    \"newPassword\": \"josephjoy009\",\r\n    \"confirmPassword\": \"josephjoy009\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users/updatepassword",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"updatepassword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update current user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJhZmNhZDhlMmZmYzhhMDc4NzIwZiIsImlhdCI6MTcxMjUwMTU3MSwiZXhwIjoxNzEyNTAyNDcxfQ.Le91LIZzeuFsxRtujVC2GdTYLoUtvyiEzBL37riS4s8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"joe007\",\r\n    \"role\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users/updateme",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"updateme"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete curent user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJiMzViZjYzNDljOTAxZDg2N2M2MSIsImlhdCI6MTcxMjUwMzY2NCwiZXhwIjoxNzEyNTA0NTY0fQ.-8LjXZM6EJM7c8Y243f5UNoa2rKoCCOex0kb4kkVfwY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/users/deleteme",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"deleteme"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get single user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/users/6612b35bf6349c901d867c61",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"6612b35bf6349c901d867c61"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MTJiMzViZjYzNDljOTAxZDg2N2M2MSIsImlhdCI6MTcxMjUyMzc3MywiZXhwIjoxNzEyNTI0NjczfQ.aC-7P5moaKVmsJangx2tERbA2xGXVLdepdz1Yexp9kA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/api/v1/users?q_email=josephjoy02@gmail.com",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users"
+					],
+					"query": [
+						{
+							"key": "q_email",
+							"value": "josephjoy02@gmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "referrals/referral-links",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/referrals/referral-links",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"referrals",
+						"referral-links"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "all referrals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/referrals/",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"referrals",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get referral by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/referrals/6612bd23a6e9b0fff20ff640",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"referrals",
+						"6612bd23a6e9b0fff20ff640"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all referrals of the user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/referrals/users/66144ab8accb93e58fe26b4a",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"referrals",
+						"users",
+						"66144ab8accb93e58fe26b4a"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "referrals/referral-links?q_belongsTo=6612b35bf6349c901d867c61",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/api/v1/referrals/referral-links?q_belongsTo=6612b35bf6349c901d867c61",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"referrals",
+						"referral-links"
+					],
+					"query": [
+						{
+							"key": "q_belongsTo",
+							"value": "6612b35bf6349c901d867c61"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
