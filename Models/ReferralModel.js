@@ -2,17 +2,20 @@ const mongoose = require('mongoose');
 
 const referralSchema = mongoose.Schema({
   referralId: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "users"
   },
   referreeId: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "users"
   },
   score: {
     type: Number,
     default: 0
   },
   referralLinkId: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "referralLinks"
   },
   createdAt: {
     type: Date,
@@ -21,7 +24,8 @@ const referralSchema = mongoose.Schema({
     type: Date,
   },
   changedBy: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "users",
     select: false,
   }
 });

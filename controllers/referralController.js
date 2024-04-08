@@ -17,14 +17,12 @@ exports.getAllReferralsUser = catchAsync(async(req, res, next) => {
 
   let queryData = await Referral.find({
     referreeId: query.id
-  });
+  }).populate("referralId referreeId referralLinkId")
 
   const doc = await queryData;
 
   res.status(200).json({
     status: 'success',
-    data: {
-      data: doc || [],
-    },
+    data: doc || [],
   });
 });

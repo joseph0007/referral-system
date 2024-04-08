@@ -8,7 +8,8 @@ const {
   updateUser,
   deleteMe,
   restrictTo,
-  refreshToken
+  refreshToken,
+  checkTokenOAuth
 } = require('../controllers/authController');
 const userController = require('../controllers/userController');
 const { buildQueryData } = require('../utils/utils');
@@ -23,6 +24,7 @@ Router.use((req, res, next) => {
 Router.post('/signup', signUp);
 Router.post('/login', logIn);
 Router.get('/logout', logout);
+Router.post('/get-token', checkTokenOAuth);
 Router.post('/refresh-token', refreshToken);
 
 Router.use(protect);

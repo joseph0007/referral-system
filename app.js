@@ -11,7 +11,7 @@ const referralRouter = require('./routes/referralRoutes');
 
 const app = express();
 
-app.use(compression());
+// app.use(compression());
 
 if( process.env.ENFORCE_HTTPS === true ) {
   app.use(cors());

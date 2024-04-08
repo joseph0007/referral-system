@@ -46,7 +46,7 @@ const userSchema = mongoose.Schema({
   },
   confirmPassword: {
     type: String,
-    required: [true, 'please confirm your password'],
+    // required: [true, 'please confirm your password'],
     validate: {
       validator: function (val) {
         if( this.isOAuth === true ) {
@@ -71,7 +71,7 @@ const userSchema = mongoose.Schema({
     type: Date,
   },
   changedBy: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
   },
   active: {
     type: Boolean,

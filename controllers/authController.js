@@ -1,3 +1,4 @@
+const firebase = require("../utils/firebase");
 const moment = require('moment');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
@@ -12,7 +13,8 @@ const {
   ACCESS_JWT_EXPIRE,
   JWT_COOKIE_EXPIRE,
   JWT_PRIVATEKEY,
-  REFRESH_JWT_EXPIRE
+  REFRESH_JWT_EXPIRE,
+  FRONTEND_URL = "http://127.0.0.1:3003"
 } = process.env;
 
 const createToken = ( id, jwtPrivateKey = JWT_PRIVATEKEY, expiresIn = ACCESS_JWT_EXPIRE ) => {
@@ -68,16 +70,17 @@ exports.signUp = catchAsync(async (req, res, next) => {
     isOAuth: req.body.isOAuth || false,
     isWalletLinked: req.body.isWalletLinked || false,
     role: 'user',
-    changedAt: req.body.changedAt || getMsDate(),
-    createdAt: getMsDate(),
+    changedAt: req.body.changedAt || getMsDate() - 5000,
+    createdAt: getMsDate()- 5000,
   });
 
   const {
     referral
   } = req.body;
 
+  const url = `${FRONTEND_URL}/signin/${referral}`;
   const query = ReferralLink.where({ 
-    referralLink: referral,
+    referralLink: url,
     expiresAt: {
       $gt: getMsDate()
     },
@@ -91,8 +94,8 @@ exports.signUp = catchAsync(async (req, res, next) => {
       referralId: user._id,
       referreeId: referralData.belongsTo,
       score: referralData.scoreAwarded,
-      createdAt: getMsDate(),
-      changedAt: getMsDate(),
+      createdAt: getMsDate()- 5000,
+      changedAt: getMsDate()- 5000,
     });
   }
 
@@ -129,19 +132,23 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('You are not logged in.Please log in!', 401));
   }
 
-  console.log("token ", token);
-  const decoded = await promisify(jwt.verify)(
-    token,
-    JWT_PRIVATEKEY
-  );
+  let decoded = {};
+  try {
+    decoded = await promisify(jwt.verify)(
+      token,
+      JWT_PRIVATEKEY
+    );
+  } catch (error) {
+    return next(new AppError('JWT expired!', 401));
+  }
 
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
-    return next(new AppError('The user does not exist!!Please login again!'));
+    return next(new AppError('The user does not exist!!Please login again!', 401));
   }
 
   if (currentUser.isPasswordChangedAfter(decoded.iat)) {
-    return next(new AppError('Token has expired.Please login again!!'));
+    return next(new AppError('Token has expired.Please login again!!', 401));
   }
 
   req.user = currentUser;
@@ -218,7 +225,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.isLoggedIn = async (req, res, next) => {
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
   try {
     let token;
     if (req.cookies.jwt) {
@@ -248,25 +255,27 @@ exports.isLoggedIn = async (req, res, next) => {
   } catch (error) {
     next();
   }
-};
+});
 
-exports.logout = async (req, res, next) => {
-  res.cookie('jwt', 'loggedout', {
-    expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
-    httpOnly: true,
-  });
+exports.logout = catchAsync(
+  async (req, res, next) => {
+    res.cookie('jwt', 'loggedout', {
+      expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
+      httpOnly: true,
+    });
+  
+    res.cookie('refreshjwt', 'loggedout', {
+      expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
+      httpOnly: true,
+    });
+  
+    res.status(200).json({
+      status: 'success',
+    });
+  }
+);
 
-  res.cookie('refreshjwt', 'loggedout', {
-    expires: new Date(parseInt(moment().format('x'), 10) + 10 * 1000),
-    httpOnly: true,
-  });
-
-  res.status(200).json({
-    status: 'success',
-  });
-};
-
-exports.refreshToken = async (req, res, next) => {
+exports.refreshToken = catchAsync(async (req, res, next) => {
   const { refreshToken } = req.headers;
   let refreshTk;
 
@@ -296,4 +305,27 @@ exports.refreshToken = async (req, res, next) => {
   }
 
   await createSendToken(currentUser, 200, req, res, 'login successful', false);
-};
+});
+
+exports.checkTokenOAuth = catchAsync(async (req, res, next) => {
+  const {
+    token,
+    email
+  } = req.body;
+
+  const response = await firebase
+  .auth()
+  .verifyIdToken(token);
+
+  if(response) {
+    const user = await User.find({
+      email
+    });
+
+    return await createSendToken(user[0], 200, req, res, 'login successful');
+  }
+
+  res.status(200).json({
+    status: 'false',
+  });
+});

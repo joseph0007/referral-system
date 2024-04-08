@@ -62,6 +62,15 @@ const buildQueryData = (req, res, next) => {
     delete combineData.id;
   }
 
+  for( let key in combineData ) {
+    if( combineData[key] ) {
+      if( key.startsWith('q_') ) {
+        query[key.substring(2)] = combineData[key];
+        delete combineData[key];
+      }
+    }
+  }
+
   for( let i = 0; i < checkData.length; i++ ) {
     if( combineData[checkData[i]] ) {
       otherQuery[checkData[i]] = combineData[checkData[i]]; 

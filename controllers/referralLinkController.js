@@ -16,14 +16,16 @@ exports.createReferralLink = catchAsync(async (req, res, next) => {
     count: 1,
   });
 
-  const referralLinkSave = await ReferralLink.create({
-    referralLink: referralLink[0],
+  const referralLinkSave = await ReferralLink.updateOne({ belongsTo: req.user._id }, {
+    referralLink: `${FRONTEND_URL}/signin/${referralLink[0]}`,
     belongsTo: req.user._id,
     expiresAt: new Date( parseInt( moment().format('x'), 10 ) + parseInt(REFERRAL_EXPIRY, 10) ),
     scoreAwarded: 50,
-    createdAt: getMsDate(),
+    // createdAt: getMsDate(),
     changedAt: getMsDate(),
     changedBy: req.user._id,
+  }, {
+    upsert: true
   });
 
   console.log("referralLinkSave ", referralLinkSave);
@@ -32,7 +34,21 @@ exports.createReferralLink = catchAsync(async (req, res, next) => {
     status: 'success',
     message: 'Referral code generated',
     data: {
-      referralLink: `${FRONTEND_URL}/signup/${referralLink}`
+      referralLink: `${FRONTEND_URL}/signin/${referralLink[0]}`
     },
+  });
+});
+
+exports.getReferralLink = catchAsync(async (req, res, next) => {
+  const {
+    query
+  } = req;
+
+  const referralLink = await ReferralLink.findOne(query);
+
+  res.status(202).json({
+    status: 'success',
+    message: 'Referral link data fetched',
+    data: referralLink
   });
 });

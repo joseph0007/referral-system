@@ -6,7 +6,8 @@ const referralLinkSchema = mongoose.Schema({
     required: true
   },
   belongsTo: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "users"
   },
   expiresAt: {
     type: Date,
@@ -21,7 +22,8 @@ const referralLinkSchema = mongoose.Schema({
     type: Date,
   },
   changedBy: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
+    ref: "users",
     select: false,
   },
   active: {
