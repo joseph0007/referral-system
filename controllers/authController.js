@@ -139,7 +139,9 @@ exports.protect = catchAsync(async (req, res, next) => {
       JWT_PRIVATEKEY
     );
   } catch (error) {
-    return next(new AppError('JWT expired!', 401));
+    console.log("refreshing token ", error.message);
+
+    decoded = await hydrateToken(req, res, next);
   }
 
   const currentUser = await User.findById(decoded.id);
@@ -306,6 +308,48 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
 
   await createSendToken(currentUser, 200, req, res, 'login successful', false);
 });
+
+const hydrateToken = async (req, res, next) => {
+  const { refreshToken } = req.headers;
+  let refreshTk;
+
+  if (refreshToken && refreshToken.startsWith('Bearer')) {
+    refreshTk = refreshToken.split(' ')[1];
+  } else if (req.cookies.refreshjwt) {
+    refreshTk = req.cookies.refreshjwt;
+  }
+
+  if (!refreshTk) {
+    return next(new AppError('Token expired!', 401));
+  }
+
+  const decoded = await promisify(jwt.verify)(
+    refreshTk,
+    JWT_PRIVATEKEY
+  );
+
+  const currentUser = await User.findById(decoded.id);
+  console.log("decoded ", decoded, currentUser);
+  if (!currentUser) {
+    return next(new AppError('The user does not exist!!Please login again!'));
+  }
+
+  if (currentUser.isPasswordChangedAfter(decoded.iat)) {
+    return next(new AppError('Token has expired.Please login again!!'));
+  }
+
+  const accessToken  = createToken(decoded.id);
+  
+  const cookieOptions = {
+    expires: new Date(parseInt(moment().format('x'), 10) + JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    httpOnly: true,
+  };
+
+  res.cookie('jwt', accessToken, cookieOptions);
+
+  return decoded;
+};
 
 exports.checkTokenOAuth = catchAsync(async (req, res, next) => {
   const {
